@@ -1,0 +1,12 @@
+{
+  "name": "runescape-music-player",
+  "version": "1.0.0",
+  "description": "A 2005-styled music player for all RuneScape music, powered by the OSRS & RS3 wiki APIs.",
+  "type": "module",
+  "scripts": {
+    "start": "node scripts/serve.mjs",
+    "build-index": "node scripts/build-index.mjs",
+    "refresh": "node scripts/build-index.mjs"
+  },
+  "license": "MIT"
+}

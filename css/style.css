@@ -1,0 +1,487 @@
+/* ===== RuneScape Music Player — faithful 2005 RS.com aesthetic ===== */
+/* Reference: github.com/2003scape/rsc-www-archives 2005/RS.com
+   - Arial 13px body, green #90C040 links, named colour classes
+   - black cobblestone background (background.jpg)
+   - carved-stone frame border (fm_*.gif 6px pieces)
+   - red stone header bars (ssredbright.jpg) with #570700 outset bevels (.b2)
+   - grey stone bevels #373737 (.b) for buttons                                */
+
+:root {
+  --green: #90C040;   /* link green        */
+  --yellow: #FFE139;
+  --red: #E10505;
+  --lblue: #9DB8C3;
+  --dblue: #0D6083;
+  --redframe: #570700;
+  --greyframe: #373737;
+  /* PLACEHOLDER bar fill — used for the banner, panel headers and column-header
+     row. Drop your own tileable sprite at assets/placeholder-bar.png (or repoint
+     this var). #560f04 is the fallback colour. */
+  --bar-bg: #560f04 url('../assets/placeholder-bar.png') repeat;
+  /* Cobble button textures (real stoneback.gif). Grey for rest, red-tinted for
+     hover/active. The red tint is a translucent overlay so it never seams. */
+  --cobble: #000 url('../assets/stoneback.gif') repeat;
+  --cobble-red: linear-gradient(rgba(150,20,8,0.72), rgba(110,12,4,0.72)), #000 url('../assets/stoneback.gif') repeat;
+  /* Carved-stone container frame (fm_*.gif) reused for #page, banner and player.
+     Use as: background-image: var(--fm-img), <your-fill>;
+             background-position: var(--fm-pos), <fill-pos>;
+             background-repeat: var(--fm-rep), <fill-rep>; */
+  --fm-img: url('../assets/fm_topleft.gif'), url('../assets/fm_topright.gif'),
+            url('../assets/fm_bottomleft.gif'), url('../assets/fm_bottomright.gif'),
+            url('../assets/fm_top2.gif'), url('../assets/fm_bottom2.gif'),
+            url('../assets/fm_left.gif'), url('../assets/fm_right.gif');
+  --fm-pos: top left, top right, bottom left, bottom right, top, bottom, left, right;
+  --fm-rep: no-repeat, no-repeat, no-repeat, no-repeat, repeat-x, repeat-x, repeat-y, repeat-y;
+  --panel: rgba(8,6,4,0.82);
+  --panel-solid: #1a1510;
+  --text: #ffffff;
+  --muted: #c9bb8e;
+}
+
+/* The official RuneScape UI fonts: Plain = normal text, Bold = bold text.
+   Registered under one family so `font-weight: bold` automatically picks Bold. */
+@font-face {
+  font-family: 'RuneScape';
+  src: url('../font/RuneScape-Plain-12.otf') format('opentype');
+  font-weight: normal; font-style: normal; font-display: swap;
+}
+@font-face {
+  font-family: 'RuneScape';
+  src: url('../font/RuneScape-Bold-12.otf') format('opentype');
+  font-weight: bold; font-style: normal; font-display: swap;
+}
+
+* { box-sizing: border-box; }
+
+html, body {
+  margin: 0;
+  height: 100%;
+  background: #000;
+  font-family: 'RuneScape', Arial, Helvetica, sans-serif;
+  font-size: 16px;   /* RuneScape font reads best around 16px */
+  color: var(--text);
+}
+a { color: var(--green); text-decoration: none; }
+a:hover { text-decoration: underline; }
+
+/* outset stone bevels from the original main.css */
+.b  { border: 3px outset var(--greyframe); }
+.b2 { border: 3px outset var(--redframe); }
+
+/* Big carved-stone title frame around the whole app.
+   Fixed to the viewport height (minus the player bar) so the track list scrolls
+   inside its own panel instead of the whole page scrolling. */
+#page {
+  max-width: 1120px;
+  height: calc(100vh - 74px);   /* leave room for the fixed player bar */
+  margin: 0 auto;
+  display: flex;
+  flex-direction: column;
+  padding: 6px;
+  overflow: hidden;
+  background-color: #000;
+  background-image: var(--fm-img);
+  background-position: var(--fm-pos);
+  background-repeat: var(--fm-rep);
+}
+
+/* ===== Banner ===== (carved-stone fm_* frame + your replaceable fill) */
+#banner {
+  position: relative;
+  background-color: #560f04;
+  background-image: var(--fm-img), url('../assets/placeholder-bar.png');
+  background-position: var(--fm-pos), center;
+  background-repeat: var(--fm-rep), repeat;
+  border: none;
+  display: flex;
+  align-items: center;
+  justify-content: center;   /* centres the "Sounds of RuneScape" title */
+  flex-wrap: wrap;
+  gap: 10px;
+  padding: 11px 16px;   /* >= 6px so content clears the stone frame */
+}
+.banner-inner { display: flex; align-items: center; gap: 16px; margin: 0; }
+.rs-sounds {
+  font-size: 40px;                 /* sized to sit level with the logo, not too small */
+  font-weight: bold;
+  color: var(--yellow);
+  text-shadow: 2px 2px 0 #000, 0 0 3px #000;
+  white-space: nowrap;
+}
+.rs-logo {
+  width: 250px; height: 80px;
+  background: url('../assets/rslogo.gif') left center no-repeat;
+  background-size: contain;
+  text-indent: -9999px;
+  margin: 0;
+  overflow: hidden;
+}
+.banner-right {
+  position: absolute; right: 16px; top: 50%; transform: translateY(-50%);
+  display: flex; flex-direction: column; align-items: flex-end; gap: 3px;
+}
+.banner-stats { font-size: 12px; color: #ffe7c0; text-shadow: 1px 1px 0 #000; text-align: right; line-height: 1.5; }
+.about-link { font-size: 12px; color: var(--yellow); cursor: pointer; text-shadow: 1px 1px 0 #000; }
+.about-link:hover { text-decoration: underline; }
+
+/* Windows 2000 LCD-style visitor counter */
+.lcd-counter {
+  display: flex; align-items: center; gap: 6px;
+  background: #c0c0c0;
+  border: 2px solid; border-color: #808080 #ffffff #ffffff #808080;   /* sunken bezel */
+  padding: 3px 6px;
+}
+.lcd-label { font-family: Arial, Helvetica, sans-serif; font-size: 10px; font-weight: bold; color: #2b2b2b; text-transform: uppercase; letter-spacing: 1px; }
+.lcd-digits {
+  font-family: 'Consolas', 'Courier New', monospace;
+  font-size: 16px; font-weight: bold; letter-spacing: 3px;
+  color: #14200c;                     /* dark LCD digits */
+  background: #93a97e;                /* pale green LCD screen */
+  border: 2px inset #5f6e50;
+  padding: 0 6px;
+}
+
+/* ===== About modal (parchment scroll) ===== */
+.modal-backdrop {
+  position: fixed; inset: 0; z-index: 200;
+  background: rgba(0,0,0,0.72);
+  display: flex; align-items: center; justify-content: center;
+  padding: 16px;
+}
+.modal-backdrop[hidden] { display: none; }
+.modal-panel {
+  width: 560px; max-width: 100%; max-height: 88vh; overflow: hidden;
+  display: flex; flex-direction: column;
+  border: 3px outset var(--greyframe);
+  background: #e7dbb6;                 /* parchment */
+  color: #2b2417;
+  box-shadow: 0 6px 30px #000;
+}
+.modal-head {
+  display: flex; justify-content: space-between; align-items: center;
+  background: var(--bar-bg); color: var(--yellow);
+  font-weight: bold; font-size: 16px;
+  padding: 6px 12px; border-bottom: 2px solid #2a0500;
+  text-shadow: 1px 1px 0 #000;
+}
+.modal-close {
+  background: #c0c0c0; color: #000; cursor: pointer;
+  border: 2px solid; border-color: #ffffff #404040 #404040 #ffffff;
+  width: 22px; height: 22px; padding: 0;
+  font-family: Arial, Helvetica, sans-serif; font-weight: bold; font-size: 16px;
+  display: inline-flex; align-items: center; justify-content: center;
+}
+.modal-close:active { border-color: #404040 #ffffff #ffffff #404040; }
+.modal-body { padding: 16px 20px; overflow-y: auto; }
+.modal-body p { font-size: 15px; line-height: 1.55; margin: 0 0 12px; }
+.about-title { margin: 0 0 14px; font-size: 20px; color: var(--red); }
+.about-sign { text-align: right; font-style: italic; color: #5a4a2e; }
+.about-credits { margin-top: 8px; border-top: 1px solid #b6a878; padding-top: 12px; }
+.about-credits ul { margin: 8px 0; padding-left: 20px; font-size: 13px; line-height: 1.5; }
+.about-credits a { color: var(--link, #2a4d8f); }
+.about-legal { font-size: 11px; color: #6a5a32; font-style: italic; margin-top: 10px; }
+
+/* ===== Game selector + Era bar ===== */
+.game-bar {
+  display: flex;
+  gap: 5px;
+  flex-wrap: wrap;
+  padding: 8px 4px 0;
+}
+.game-tab { font-size: 15px; padding: 7px 22px; }
+.era-bar {
+  display: flex;
+  gap: 5px;
+  flex-wrap: wrap;
+  padding: 6px 4px 0;
+}
+.era-tab { text-align: left; line-height: 1.15; }
+.era-sub { display: block; font-size: 10px; font-weight: normal; color: var(--muted); }
+.era-tab.active .era-sub { color: #ffe9b0; }
+.era-hint { margin: 4px 6px 0; font-size: 11px; color: var(--muted); }
+.era-hint .ver-badge { font-size: 10px; }
+.era-tab {
+  font-family: inherit;
+  font-size: 13px;
+  font-weight: bold;
+  color: #fff;
+  background: var(--cobble);
+  border: 3px outset var(--greyframe);
+  padding: 5px 14px;
+  cursor: pointer;
+  text-shadow: 1px 1px 0 #000;
+}
+.era-tab:hover { background: var(--cobble-red); color: var(--yellow); }
+.era-tab.active {
+  border-style: inset;
+  background: var(--cobble-red);
+  color: var(--yellow);
+}
+
+/* ===== Layout ===== */
+#layout { display: flex; gap: 6px; flex: 1; min-height: 0; padding: 6px 4px 4px; }
+
+.panel {
+  background: var(--panel);
+  border: 3px outset var(--greyframe);
+  display: flex;
+  flex-direction: column;
+  min-height: 0;
+}
+#controls { overflow-y: auto; }
+.panel-head {
+  margin: 0;
+  font-size: 15px;
+  font-weight: bold;
+  color: var(--yellow);
+  background: var(--bar-bg);
+  border-bottom: 2px solid #2a0500;
+  padding: 5px 12px;
+  text-shadow: 1px 1px 0 #000;
+}
+.panel-body { padding: 10px 12px; display: flex; flex-direction: column; gap: 6px; }
+
+#controls { width: 244px; flex-shrink: 0; }
+#listPanel { flex: 1; min-width: 0; }
+
+/* ===== Controls ===== */
+.ctl-label {
+  font-size: 11px;
+  font-weight: bold;
+  color: var(--yellow);
+  margin-top: 6px;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+}
+#controls input[type=text],
+#controls input[type=number],
+#controls select {
+  font-family: inherit;
+  font-size: 15px;
+  background: #ece4cf;
+  border: 2px inset #888;
+  padding: 4px 6px;
+  color: #1a140d;
+  width: 100%;
+}
+.year-range { display: flex; align-items: center; gap: 6px; }
+.year-range input { width: 70px; }
+.year-range span { font-size: 12px; color: var(--muted); }
+.ctl-check { font-size: 12px; color: #fff; margin-top: 8px; display: flex; align-items: center; gap: 6px; cursor: pointer; }
+.ctl-hint { font-size: 11px; color: var(--muted); font-style: italic; margin: 4px 0 0; }
+.title-update { font-size: 11px; color: var(--green); }
+.title-update:hover { text-decoration: underline; }
+
+.btn-row { display: flex; gap: 5px; margin-top: 5px; }
+.btn-row.wrap { flex-wrap: wrap; }
+.rs-btn {
+  font-family: inherit;
+  font-size: 12px;
+  font-weight: bold;
+  color: #fff;
+  background: var(--cobble);
+  border: 3px outset var(--greyframe);
+  padding: 5px 8px;
+  cursor: pointer;
+  text-shadow: 1px 1px 0 #000;
+  flex: 1;
+  white-space: nowrap;
+}
+.rs-btn:hover { background: var(--cobble-red); color: var(--yellow); }
+.rs-btn:active { border-style: inset; }
+.rs-btn.active { border-style: inset; background: var(--cobble-red); color: var(--yellow); }
+
+.result-count { font-size: 12px; color: var(--green); margin-top: 10px; font-weight: bold; }
+
+/* ===== Track list ===== */
+/* OSRS: fav # title year composer length    RS3 (mode-rs3): year column dropped */
+.list-head, .track-row {
+  display: grid;
+  grid-template-columns: 26px 44px 1fr 50px 160px 64px;
+  align-items: center;
+  gap: 6px;
+  padding: 3px 10px;
+}
+body.mode-rs3 .list-head,
+body.mode-rs3 .track-row { grid-template-columns: 26px 44px 1fr 160px 64px; }
+body.mode-rs3 .col-year { display: none; }
+.list-head {
+  font-size: 11px;
+  font-weight: bold;
+  color: var(--yellow);
+  background: var(--bar-bg);
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+  text-shadow: 1px 1px 0 #000;
+  border-bottom: 2px solid #2a0500;
+  text-align: left;
+}
+.list-head span { text-align: left; }
+.sort-col { cursor: pointer; user-select: none; }
+.sort-col:hover { color: #fff; }
+.sort-col.sorted { color: #fff; }
+.sort-col[data-arrow]:not([data-arrow=""])::after { content: " " attr(data-arrow); color: var(--yellow); }
+.track-list { overflow-y: auto; flex: 1; min-height: 0; }
+.track-row {
+  font-size: 15px;
+  border-bottom: 1px solid rgba(255,255,255,0.08);
+  cursor: pointer;
+  color: #eee;
+}
+.track-row:nth-child(even) { background: rgba(255,255,255,0.05); }
+.track-row:hover { background: rgba(144,192,64,0.18); }
+.track-row.playing { background: rgba(255,225,57,0.20); box-shadow: inset 3px 0 0 var(--yellow); font-weight: bold; color: #fff; }
+.col-title { overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.col-composer { overflow: hidden; text-overflow: ellipsis; white-space: nowrap; font-size: 13px; color: var(--lblue); }
+.col-num, .col-year, .col-dur { font-size: 13px; color: var(--muted); }
+.ver-badge { margin-left: 3px; font-size: 10px; color: var(--green); vertical-align: top; }
+.col-src { font-size: 11px; }
+.src-tag { padding: 1px 5px; color: #fff; font-size: 11px; font-weight: bold; border: 1px outset; }
+.src-osrs { background: #6b4f12; }
+.src-rs3 { background: #0d4a6b; }
+.fav-star {
+  display: inline-block; width: 19px; height: 16px; vertical-align: middle;
+  background: url('../assets/favstar.gif') center/contain no-repeat;
+  cursor: pointer;
+  filter: grayscale(1) opacity(0.4);          /* dim grey = not favourited */
+}
+.fav-star:hover { filter: grayscale(0.4) opacity(0.85); }
+.fav-star.on { filter: none; }                 /* full gold = favourited */
+
+/* ===== Player bar ===== */
+.player-bar {
+  position: fixed;
+  bottom: 0; left: 0; right: 0;
+  margin: 0 auto;
+  max-width: 1120px;          /* match the #page container width */
+  /* carved-stone fm_* frame over a solid black fill */
+  background-color: #000;
+  background-image: var(--fm-img);
+  background-position: var(--fm-pos);
+  background-repeat: var(--fm-rep);
+  border: none;
+  display: flex;
+  align-items: center;
+  flex-wrap: nowrap;
+  overflow: hidden;
+  gap: 12px;
+  padding: 9px 14px;   /* >= 6px so controls clear the stone frame */
+  z-index: 50;
+}
+#viz { background: #050705; border: 2px inset #444; box-shadow: inset 0 0 10px rgba(0,0,0,0.85); flex-shrink: 0; }
+/* buffering overlay, centred over the visualizer so nothing in the layout shifts */
+.np-load {
+  position: absolute; left: 14px; width: 120px;
+  top: 50%; transform: translateY(-50%);
+  text-align: center; pointer-events: none;
+  font-size: 11px; font-weight: bold; letter-spacing: 1px;
+  color: var(--yellow); text-shadow: 1px 1px 0 #000;
+  animation: npload-blink 0.9s ease-in-out infinite;
+}
+.np-load::after { content: '…'; }
+@keyframes npload-blink { 0%,100% { opacity: 0.3; } 50% { opacity: 1; } }
+.np-fav {
+  flex-shrink: 0;
+  width: 24px; height: 20px; padding: 0;
+  background: url('../assets/favstar.gif') center/contain no-repeat;
+  border: none; cursor: pointer;
+  filter: grayscale(1) opacity(0.45);
+}
+.np-fav:hover { filter: grayscale(0.4) opacity(0.9); }
+.np-fav.on { filter: none; }
+.np-info { flex: 0 1 210px; min-width: 60px; overflow: hidden; }
+.np-title { font-size: 15px; font-weight: bold; color: var(--yellow); text-shadow: 1px 1px 0 #000; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.np-meta { font-size: 12px; color: var(--lblue); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.np-meta a { color: var(--green); }
+.np-controls { display: flex; gap: 3px; flex-shrink: 0; }
+/* Windows 2000 / WMP 6.4 grey 3D buttons */
+.pl-btn {
+  background: #c0c0c0;
+  border: 2px solid;
+  border-color: #ffffff #404040 #404040 #ffffff;
+  box-shadow: inset -1px -1px 0 #808080, inset 1px 1px 0 #dfdfdf;
+  color: #000;
+  width: 30px; height: 28px;
+  padding: 0;
+  display: inline-flex; align-items: center; justify-content: center;
+  cursor: pointer;
+}
+.pl-btn .ico { width: 15px; height: 15px; display: block; pointer-events: none; }
+.pl-btn.big { width: 40px; height: 32px; }
+.pl-btn.big .ico { width: 19px; height: 19px; }
+.pl-btn:active,
+.pl-btn.active {
+  border-color: #404040 #ffffff #ffffff #404040;
+  box-shadow: inset 1px 1px 0 #808080;
+}
+.pl-btn:active .ico,
+.pl-btn.active .ico { transform: translate(1px, 1px); }
+.pl-btn:focus { outline: 1px dotted #000; outline-offset: -4px; }
+.np-seek { flex: 1 1 auto; display: flex; align-items: center; gap: 6px; min-width: 80px; }
+.np-seek span { font-size: 12px; color: var(--muted); width: 34px; flex-shrink: 0; }
+.np-seek #curTime { text-align: right; }   /* played time hugs the left of the bar */
+.np-extra { display: flex; align-items: center; gap: 6px; flex-shrink: 0; }
+.ver-label { font-size: 12px; color: var(--muted); }
+.version-sel {
+  font-family: inherit; font-size: 13px;
+  background: #c0c0c0; border: 2px solid;
+  border-color: #404040 #ffffff #ffffff #404040;   /* Win2000 sunken combo */
+  color: #000; max-width: 120px; padding: 1px 2px;
+}
+.vol-wrap { display: flex; align-items: center; gap: 4px; font-size: 13px; color: #fff; }
+.vol-ico { display: inline-flex; color: #e6e6e6; }
+.vol-ico .ico { width: 16px; height: 16px; display: block; }
+
+/* Windows 2000 trackbar: thin sunken groove + grey raised 3D thumb */
+input[type=range] {
+  -webkit-appearance: none; appearance: none;
+  height: 20px; background: transparent; cursor: pointer; padding: 0; margin: 0;
+}
+.np-seek input[type=range] { flex: 1; }
+#vol { width: 84px; }
+input[type=range]::-webkit-slider-runnable-track {
+  height: 4px; background: #5a5a5a;
+  border: 1px solid; border-color: #404040 #dfdfdf #dfdfdf #404040;
+}
+input[type=range]::-moz-range-track {
+  height: 4px; background: #5a5a5a;
+  border: 1px solid; border-color: #404040 #dfdfdf #dfdfdf #404040;
+}
+input[type=range]::-webkit-slider-thumb {
+  -webkit-appearance: none; appearance: none;
+  width: 11px; height: 18px; margin-top: -8px;
+  background: #c0c0c0; border: 2px solid;
+  border-color: #ffffff #404040 #404040 #ffffff;
+  box-shadow: inset -1px -1px 0 #808080, inset 1px 1px 0 #dfdfdf;
+}
+input[type=range]::-moz-range-thumb {
+  width: 11px; height: 18px; border-radius: 0;
+  background: #c0c0c0; border: 2px solid;
+  border-color: #ffffff #404040 #404040 #ffffff;
+}
+
+/* ===== Loading ===== */
+.loading {
+  position: fixed; inset: 0;
+  background: #000;
+  display: flex; align-items: center; justify-content: center;
+  font-size: 20px; color: var(--yellow);
+  text-shadow: 2px 2px 0 #000;
+  z-index: 100;
+}
+.loading.hidden { display: none; }
+
+/* ===== Responsive ===== */
+@media (max-width: 720px) {
+  #layout { flex-direction: column; }
+  #controls { width: 100%; }
+  .list-head .col-composer, .track-row .col-composer { display: none; }
+  .list-head, .track-row { grid-template-columns: 24px 38px 1fr 46px 52px; }
+  body.mode-rs3 .list-head, body.mode-rs3 .track-row { grid-template-columns: 24px 38px 1fr 52px; }
+  #viz, .np-extra { display: none; }
+  .np-info { flex-basis: 140px; }
+  .rs-logo { width: 180px; height: 58px; }
+  .rs-sounds { font-size: 26px; }
+  #banner { justify-content: center; }
+  .banner-right { position: static; transform: none; align-items: center; }
+}
