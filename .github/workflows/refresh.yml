@@ -1,0 +1,42 @@
+name: Refresh music index
+
+# Re-crawls the OSRS & RS3 wikis + archive.org and commits an updated data/ index.
+# Pushing to the default branch triggers a GitHub Pages redeploy, so the live site
+# stays current as Jagex releases new music.
+
+on:
+  schedule:
+    - cron: '0 6 * * 1'      # every Monday 06:00 UTC
+  workflow_dispatch: {}       # + a manual "Run workflow" button
+
+permissions:
+  contents: write             # allow the job to commit the refreshed index
+
+concurrency:
+  group: refresh-index
+  cancel-in-progress: false
+
+jobs:
+  refresh:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+
+      - name: Crawl wikis + archive.org
+        run: node scripts/build-index.mjs
+
+      - name: Commit refreshed index (if changed)
+        run: |
+          git config user.name  "github-actions[bot]"
+          git config user.email "github-actions[bot]@users.noreply.github.com"
+          if [ -n "$(git status --porcelain data)" ]; then
+            git add data
+            git commit -m "chore: refresh music index ($(date -u +%Y-%m-%d))"
+            git push
+          else
+            echo "No track changes — index already up to date."
+          fi

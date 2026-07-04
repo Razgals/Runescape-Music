@@ -4,6 +4,7 @@
 <meta charset="UTF-8" />
 <meta name="viewport" content="width=device-width, initial-scale=1.0" />
 <title>Sounds of RuneScape</title>
+<link rel="icon" href="assets/icon.ico" sizes="any" />
 <link rel="stylesheet" href="css/style.css" />
 </head>
 <body>
@@ -64,6 +65,9 @@
         <div class="btn-row">
           <button id="favView" class="rs-btn">★ My Favourites</button>
         </div>
+        <div class="btn-row">
+          <button id="plBtn" class="rs-btn">Playlists &amp; sharing</button>
+        </div>
         <div class="btn-row wrap">
           <button id="surprise" class="rs-btn">Surprise me</button>
           <button id="onthisday" class="rs-btn">On this day</button>
@@ -115,11 +119,40 @@
       <span id="durTime">0:00</span>
     </div>
     <div class="np-extra">
+      <button id="pipBtn" class="pl-btn" title="Pop out mini player" hidden></button>
       <span id="verLabel" class="ver-label" hidden>Version:</span>
       <select id="versionSel" class="version-sel" title="Choose which era's version to play" hidden></select>
       <span class="vol-wrap"><span id="volIco" class="vol-ico" title="Volume"></span><input id="vol" type="range" min="0" max="100" value="80" /></span>
     </div>
   </footer>
+
+  <!-- ===== Playlists ===== -->
+  <div id="plModal" class="modal-backdrop" hidden>
+    <div class="modal-panel" role="dialog" aria-modal="true" aria-labelledby="plHead">
+      <div class="modal-head">
+        <span id="plHead">Playlists</span>
+        <button id="plClose" class="modal-close" title="Close" aria-label="Close">×</button>
+      </div>
+      <div class="modal-body pl-body">
+        <div class="pl-make">
+          <input id="plName" type="text" placeholder="New playlist name" maxlength="60" />
+          <input id="plAuthor" type="text" placeholder="Your name (optional)" maxlength="40" />
+          <button id="plCreate" class="rs-btn">Create</button>
+        </div>
+        <p class="ctl-hint">Add tracks with the <b>+</b> next to each track in the list. Tracks remember the era version you're viewing.</p>
+
+        <div id="plList" class="pl-list"></div>
+
+        <div class="pl-import">
+          <label class="ctl-label">Import a shared playlist</label>
+          <div class="pl-make">
+            <input id="plImport" type="text" placeholder="Paste a share code (SOR1…) or link" />
+            <button id="plImportBtn" class="rs-btn">Import</button>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
 
   <!-- ===== About / credits ===== -->
   <div id="aboutModal" class="modal-backdrop" hidden>

@@ -1,0 +1,7 @@
+# OS / editor cruft
+Thumbs.db
+.DS_Store
+*.log
+
+# Node (none committed, but just in case)
+node_modules/

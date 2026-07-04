@@ -4,7 +4,7 @@
 //         node scripts/build-index.mjs --limit 60 (cap tracks per wiki, for testing)
 //
 // Output: data/tracks-osrs.json, data/tracks-rs3.json, data/tracks.json, data/meta.json
-// Audio is NOT downloaded — the app streams .ogg straight from the wiki.
+// audio isn't downloaded, just the .ogg urls
 
 import { writeFile, mkdir } from 'node:fs/promises';
 import { fileURLToPath } from 'node:url';
@@ -15,7 +15,7 @@ const DATA_DIR = join(__dirname, '..', 'data');
 
 const UA = 'RuneScapeMusicPlayer/1.0 (static fan project; wiki + archive.org reader)';
 
-// RS3 audio comes from this Internet Archive collection; composers are matched in from the RS3 wiki.
+// rs3 audio from the internet archive; composers come from the rs3 wiki
 const ARCHIVE_ITEM = 'runescape-music';
 const ARCHIVE_BASE = `https://archive.org/download/${ARCHIVE_ITEM}`;
 
@@ -102,9 +102,7 @@ function parseInfobox(wikitext) {
   return fields;
 }
 
-// Canonicalise composer credits: drop "(rework)" notes, map Mod-names to real
-// names where confidently known, and de-duplicate. e.g. "Mod Ian, Mod Bond (2014 rework)"
-// -> "Ian Taylor, Mod Bond"; "Ian Taylor (original)" -> "Ian Taylor".
+// tidy composer credits: drop "(rework)" notes, map mod names, dedupe
 const COMPOSER_MAP = { 'mod ian': 'Ian Taylor' };
 function normalizeComposer(raw) {
   const s = stripWiki(raw);
@@ -162,9 +160,7 @@ function fileTitle(raw) {
 // strip the "(music track)" / "(music)" disambiguator from a display title
 function cleanTitle(t) { return t.replace(/\s*\((?:music track|music|track)\)\s*$/i, '').trim(); }
 
-// Parse the OSRS "==Versions==" wikitable (class embed-audio-links): each real
-// version row has a number, a release date and a [[File:...ogg]]. Rows with
-// colspan (soundbank/update descriptions) and the header are skipped.
+// parse the OSRS ==Versions== table (number, date, [[File:...ogg]] per row)
 function parseVersions(wikitext) {
   const m = wikitext.match(/==+\s*Versions?\s*==+([\s\S]*?)(?:\n==[^=]|$)/i);
   if (!m) return [];
@@ -256,7 +252,7 @@ async function fetchAudio(wiki, fileNeeded) {
       action: 'query', titles: batch.join('|'),
       prop: 'imageinfo', iiprop: 'url', iilimit: '1',
     });
-    // MediaWiki may normalise titles (e.g. underscores/spaces) — map them back
+    // mediawiki may normalise titles, map them back
     const norm = {};
     for (const n of (data.query.normalized || [])) norm[n.to] = n.from;
     for (const page of data.query.pages) {
@@ -272,7 +268,7 @@ async function fetchAudio(wiki, fileNeeded) {
   process.stdout.write('\n');
 }
 
-// ----- jingle / sting detection (these are removed entirely from output) -----
+// jingles / stings — dropped from the output
 function isJingleTrack(t) {
   if (t.jingle) return true;                                  // wiki Category:Jingles / Sound effects
   if (t.lengthSec != null && t.lengthSec < 15) return true;
@@ -285,7 +281,7 @@ function fmtDuration(sec) {
   sec = Math.round(sec);
   return `${Math.floor(sec/60)}:${String(sec % 60).padStart(2,'0')}`;
 }
-// normalise a title for matching archive filenames to wiki pages
+// normalise a title for archive<->wiki matching
 function normTitle(s) {
   return s.toLowerCase().replace(/\((music track|music|track|theme)\)/g, '').replace(/[^a-z0-9]/g, '');
 }
@@ -317,7 +313,7 @@ async function crawlInfoOnly(wiki) {
   return tracks;
 }
 
-// RS3 tracks = archive.org audio, enriched with RS3-wiki composer/metadata by title.
+// rs3 = archive.org audio + rs3-wiki composers, matched by title
 async function buildRs3FromArchive(wikiTracks) {
   console.log('  [rs3] joining archive.org audio with RS3-wiki composers…');
   const wmap = new Map();

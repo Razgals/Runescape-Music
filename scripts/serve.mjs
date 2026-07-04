@@ -20,7 +20,10 @@ createServer(async (req, res) => {
     if (!file.startsWith(ROOT)) { res.writeHead(403).end('Forbidden'); return; }
     await stat(file);
     const data = await readFile(file);
-    res.writeHead(200, { 'Content-Type': TYPES[extname(file)] || 'application/octet-stream' });
+    res.writeHead(200, {
+      'Content-Type': TYPES[extname(file)] || 'application/octet-stream',
+      'Cache-Control': 'no-cache, no-store, must-revalidate',   // always serve fresh in dev
+    });
     res.end(data);
   } catch {
     res.writeHead(404).end('Not found');

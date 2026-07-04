@@ -1,10 +1,4 @@
-/* ===== RuneScape Music Player — faithful 2005 RS.com aesthetic ===== */
-/* Reference: github.com/2003scape/rsc-www-archives 2005/RS.com
-   - Arial 13px body, green #90C040 links, named colour classes
-   - black cobblestone background (background.jpg)
-   - carved-stone frame border (fm_*.gif 6px pieces)
-   - red stone header bars (ssredbright.jpg) with #570700 outset bevels (.b2)
-   - grey stone bevels #373737 (.b) for buttons                                */
+/* styled after 2005 runescape.com (2003scape archive) */
 
 :root {
   --green: #90C040;   /* link green        */
@@ -14,18 +8,12 @@
   --dblue: #0D6083;
   --redframe: #570700;
   --greyframe: #373737;
-  /* PLACEHOLDER bar fill — used for the banner, panel headers and column-header
-     row. Drop your own tileable sprite at assets/placeholder-bar.png (or repoint
-     this var). #560f04 is the fallback colour. */
+  /* banner/header fill — swap assets/placeholder-bar.png for your own tile */
   --bar-bg: #560f04 url('../assets/placeholder-bar.png') repeat;
-  /* Cobble button textures (real stoneback.gif). Grey for rest, red-tinted for
-     hover/active. The red tint is a translucent overlay so it never seams. */
+  /* button cobble: grey normally, red-tinted on hover/active */
   --cobble: #000 url('../assets/stoneback.gif') repeat;
   --cobble-red: linear-gradient(rgba(150,20,8,0.72), rgba(110,12,4,0.72)), #000 url('../assets/stoneback.gif') repeat;
-  /* Carved-stone container frame (fm_*.gif) reused for #page, banner and player.
-     Use as: background-image: var(--fm-img), <your-fill>;
-             background-position: var(--fm-pos), <fill-pos>;
-             background-repeat: var(--fm-rep), <fill-rep>; */
+  /* stone frame (fm_*.gif) reused on #page, banner, player */
   --fm-img: url('../assets/fm_topleft.gif'), url('../assets/fm_topright.gif'),
             url('../assets/fm_bottomleft.gif'), url('../assets/fm_bottomright.gif'),
             url('../assets/fm_top2.gif'), url('../assets/fm_bottom2.gif'),
@@ -38,8 +26,7 @@
   --muted: #c9bb8e;
 }
 
-/* The official RuneScape UI fonts: Plain = normal text, Bold = bold text.
-   Registered under one family so `font-weight: bold` automatically picks Bold. */
+/* rs fonts: plain = normal, bold = bold, one family */
 @font-face {
   font-family: 'RuneScape';
   src: url('../font/RuneScape-Plain-12.otf') format('opentype');
@@ -181,6 +168,44 @@ a:hover { text-decoration: underline; }
 .about-credits a { color: var(--link, #2a4d8f); }
 .about-legal { font-size: 11px; color: #6a5a32; font-style: italic; margin-top: 10px; }
 
+/* ===== Playlists modal ===== */
+.pl-body { display: flex; flex-direction: column; gap: 10px; }
+.pl-body .ctl-hint { color: #5a4a2e; }
+.pl-make { display: flex; gap: 6px; flex-wrap: wrap; }
+.pl-make input {
+  flex: 1; min-width: 120px; font-family: inherit; font-size: 14px;
+  background: #f2ead2; border: 2px inset #9c8f6a; padding: 4px 7px; color: #1a140d;
+}
+.pl-make .rs-btn { flex: 0 0 auto; }
+.pl-list { display: flex; flex-direction: column; gap: 6px; max-height: 42vh; overflow-y: auto; }
+.pl-empty { color: #6a5a32; font-style: italic; font-size: 14px; margin: 4px 0; }
+.pl-item { background: #d8cca8; border: 2px outset #b6a878; padding: 6px 8px; }
+.pl-row { display: flex; align-items: center; gap: 8px; }
+.pl-info { flex: 1; min-width: 0; cursor: pointer; }
+.pl-nm { font-weight: bold; color: #2b2417; font-size: 15px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.pl-sub { font-size: 12px; color: #5a4a2e; }
+.pl-actions { display: flex; gap: 4px; flex-shrink: 0; }
+.pl-actions .rs-btn { flex: 0 0 auto; font-size: 11px; padding: 4px 8px; }
+.pl-tracks { margin-top: 6px; border-top: 1px solid #b6a878; padding-top: 6px; display: flex; flex-direction: column; gap: 1px; max-height: 32vh; overflow-y: auto; }
+.pl-trk { display: flex; align-items: center; justify-content: space-between; gap: 8px; font-size: 13px; color: #2b2417; padding: 1px 2px; }
+.pl-trk:hover { background: rgba(0,0,0,0.06); }
+.pl-trk-nm { flex: 1; min-width: 0; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.pl-ver {
+  flex-shrink: 0; font-family: inherit; font-size: 12px; color: #2b2417;
+  background: #f2ead2; border: 2px inset #9c8f6a; padding: 0 2px;
+}
+.pl-ver-static { flex-shrink: 0; font-size: 12px; color: #5a4a2e; }
+.pl-trk-btns { display: flex; gap: 2px; flex-shrink: 0; }
+.pl-mini {
+  width: 20px; height: 20px; font-size: 12px; line-height: 1; padding: 0; cursor: pointer;
+  background: #c0c0c0; color: #2b2417;
+  border: 2px outset #b6a878;
+}
+.pl-mini:active { border-style: inset; }
+.pl-empty2 { font-size: 12px; color: #6a5a32; font-style: italic; padding: 4px; }
+.pl-import { border-top: 1px solid #b6a878; padding-top: 10px; }
+.pl-import .ctl-label { color: #5a4a2e; }
+
 /* ===== Game selector + Era bar ===== */
 .game-bar {
   display: flex;
@@ -297,13 +322,31 @@ a:hover { text-decoration: underline; }
 /* OSRS: fav # title year composer length    RS3 (mode-rs3): year column dropped */
 .list-head, .track-row {
   display: grid;
-  grid-template-columns: 26px 44px 1fr 50px 160px 64px;
+  grid-template-columns: 44px 44px 1fr 50px 160px 64px;
   align-items: center;
   gap: 6px;
   padding: 3px 10px;
 }
 body.mode-rs3 .list-head,
-body.mode-rs3 .track-row { grid-template-columns: 26px 44px 1fr 160px 64px; }
+body.mode-rs3 .track-row { grid-template-columns: 44px 44px 1fr 160px 64px; }
+.col-fav { display: flex; align-items: center; gap: 4px; }
+.add-pl { cursor: pointer; color: #6a6a6a; font-weight: bold; font-size: 17px; line-height: 1; width: 14px; text-align: center; user-select: none; }
+.add-pl:hover { color: #fff; }
+.add-pl.in { color: var(--green); }          /* track is in ≥1 playlist */
+
+/* add-to-playlist checklist popup */
+.add-menu {
+  position: fixed; z-index: 350; min-width: 180px; max-width: 240px;
+  background: #1a1510; border: 2px outset var(--greyframe);
+  box-shadow: 0 4px 16px #000; padding: 2px;
+}
+.add-head { padding: 4px 10px 3px; font-size: 10px; color: var(--muted); text-transform: uppercase; letter-spacing: 0.5px; }
+.add-item { padding: 5px 10px; font-size: 13px; color: #eee; cursor: pointer; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.add-item:hover { background: rgba(144,192,64,0.22); color: #fff; }
+.add-item.in { color: var(--green); }
+.add-check { display: inline-block; width: 15px; color: var(--green); font-weight: bold; }
+.add-new { border-top: 1px solid #4a4030; color: var(--yellow); }
+.add-empty { padding: 5px 10px; font-size: 12px; color: var(--muted); font-style: italic; }
 body.mode-rs3 .col-year { display: none; }
 .list-head {
   font-size: 11px;
@@ -460,6 +503,28 @@ input[type=range]::-moz-range-thumb {
   border-color: #ffffff #404040 #404040 #ffffff;
 }
 
+/* ===== Pop-out mini player (Document Picture-in-Picture window) ===== */
+.pip-body { margin: 0; background: #000; overflow: hidden; }
+.pip-player {
+  height: 100vh; box-sizing: border-box;
+  display: flex; flex-direction: column; gap: 6px; padding: 8px 10px;
+  /* same carved-stone frame as the main app, over black */
+  background-color: #000;
+  background-image: var(--fm-img);
+  background-position: var(--fm-pos);
+  background-repeat: var(--fm-rep);
+}
+.pip-top { display: flex; align-items: center; gap: 10px; }
+.pip-viz { background: #050705; border: 2px inset #444; box-shadow: inset 0 0 8px rgba(0,0,0,0.85); flex-shrink: 0; }
+.pip-main { flex: 1; min-width: 0; display: flex; flex-direction: column; gap: 3px; }
+.pip-title { font-size: 15px; font-weight: bold; color: var(--yellow); text-shadow: 1px 1px 0 #000; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.pip-meta { font-size: 12px; color: var(--lblue); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.pip-controls { display: flex; align-items: center; gap: 4px; }
+.pip-controls .fav-star { margin: 0 2px; flex-shrink: 0; }
+.pip-vol { display: flex; align-items: center; gap: 4px; margin-left: auto; }
+.pip-vol .vol-ico { color: #e6e6e6; }
+.pip-volrange { width: 58px; }
+
 /* ===== Loading ===== */
 .loading {
   position: fixed; inset: 0;
@@ -476,8 +541,8 @@ input[type=range]::-moz-range-thumb {
   #layout { flex-direction: column; }
   #controls { width: 100%; }
   .list-head .col-composer, .track-row .col-composer { display: none; }
-  .list-head, .track-row { grid-template-columns: 24px 38px 1fr 46px 52px; }
-  body.mode-rs3 .list-head, body.mode-rs3 .track-row { grid-template-columns: 24px 38px 1fr 52px; }
+  .list-head, .track-row { grid-template-columns: 40px 38px 1fr 46px 52px; }
+  body.mode-rs3 .list-head, body.mode-rs3 .track-row { grid-template-columns: 40px 38px 1fr 52px; }
   #viz, .np-extra { display: none; }
   .np-info { flex-basis: 140px; }
   .rs-logo { width: 180px; height: 58px; }
